@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>BREAD (Browse, Read, Edit, Add, Delete)</title>
+    <link href="/stylesheets/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container mt-3">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Change Avatar</h2>
+            </div>
+            <div class="card-body" style="padding-left: 0; padding-right: 0;">
+
+                <form action="" method="post" style="padding: 16px 16px 0px 16px;" encType="multipart/form-data">
+                    <div class="row mb-2">
+                        <div class="col-2">
+                            <label for="avatar" class="col-form-label">Avatar</label>
+                        </div>
+                        <div class="col-10">
+                            <input type="file" name="avatar" id="imageInput" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="preview" class="col-form-label">Preview</label>
+                        </div>
+                        <div class="col-10">
+                            <% if (!avatar) { %>
+                                <img id="imagePreview" src="/images/default_avatar.jpg" alt="image preview" class="img-fluid" style="width: 320px; height: 320px;">
+                            <% } else { %>
+                                <img id="imagePreview" src="/images/uploads/<%= avatar %>" alt="image preview" class="img-fluid" style="width: 320px; height: 320px;">
+                            <% } %>
+                        </div>
+                    </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <button type="submit" class="btn btn-primary btn-sm" style="width: 36px; margin-right: 5px; margin-left: 10px;"><i class="fa-solid fa-floppy-disk"></i></button>
+                    <a href="/todos" class="btn btn-warning btn-sm" style="width: 36px;"><i class="fa-solid fa-rotate-left"></i></a>
+                </div>
+            </div>
+            </form>
+
+        </div>
+    </div>
+    <br>
+    <script>
+        // JavaScript to handle image preview
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const imagePreview = document.getElementById('imagePreview');
+              imagePreview.src = e.target.result;
+              imagePreview.style.display = 'block'; // Show the preview
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      </script>
+</body>
+
+</html>
