@@ -65,6 +65,32 @@ module.exports = function (db) {
     }
   })
 
+  router.post('/', async function (req, res, next) {
+      const { name, phone } = req.body
+      // console.log(name, phone)
+      var myObj = []
+      myObj.push(`"name" : "${name}"`)
+      myObj.push(`"phone" : "${phone}"`)
+      let noSql = '{';
+      if (myObj.length > 0) {
+        noSql += `${myObj.join(',')}`
+      }
+      noSql += '}'
+      // console.log(noSql)
+      noSql = JSON.parse(noSql)
+      try {
+        const resultInsertData  = await db.collection("users").insertOne(noSql)
+        if (resultInsertData){
+          const insertedData = await db.collection("users").findOne({ _id: resultInsertData.insertedId })
+          res.status(200).json(insertedData)
+        }
+      } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: "error menambahkan data" })
+      }
+      
+  })
+
   router.get('/:id', async function (req, res, next) {
     const id = req.params.id
     console.log(id)
@@ -74,9 +100,11 @@ module.exports = function (db) {
       res.status(200).json(data)
     } catch (error) {
       console.log(error)
+      es.status(500).json({ message: "error ambil data" })
     }
-    
   })
+
+
   
   return router
 }
