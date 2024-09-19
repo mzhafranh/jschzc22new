@@ -200,14 +200,19 @@ module.exports = function (db) {
     }
   })
 
-  router.get('/delete/:id', (req, res) => {
-    const index = parseInt(req.params.id)
-    remove(index, (err) => {
-      if (err) {
-        console.error(err);
+  router.delete('/:id', async function (req, res, next) {
+    const id = req.params.id
+    try {
+      const getData = await db.collection("todos").findOne({ _id: new ObjectId(id) })
+      const result = await db.collection("todos").deleteOne({ _id: new ObjectId(id) })
+      console.log(result)
+      if (result.deletedCount === 1) {
+        res.status(200).json(getData)
       }
-    })
-    res.redirect('/todos');
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "error update data" })
+    }
   })
 
   return router;
