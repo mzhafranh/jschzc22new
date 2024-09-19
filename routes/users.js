@@ -130,6 +130,21 @@ module.exports = function (db) {
     }
   })
 
+  router.delete('/:id', async function (req, res, next) {
+    const id = req.params.id
+    try {
+      const getData = await db.collection("users").findOne({ _id: new ObjectId(id) })
+      const result = await db.collection("users").deleteOne({ _id: new ObjectId(id) })
+      console.log(result)
+      if (result.deletedCount === 1) {
+        res.status(200).json(getData)
+      }
+    } catch (error) {
+      console.log(error)
+      es.status(500).json({ message: "error update data" })
+    }
+  })
+
 
 
   return router
