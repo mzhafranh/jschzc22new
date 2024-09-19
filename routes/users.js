@@ -46,7 +46,7 @@ module.exports = function (db) {
 
     try {
       const totalData = await db.collection("users").countDocuments(noSql)
-      console.log('total data: ',totalData)
+      console.log('total data: ', totalData)
       const pages = Math.ceil(totalData / limit)
       const data = await db.collection("users").find(noSql).skip(offset).limit(limit).sort(sortMongo).toArray()
       console.log(data)
@@ -66,29 +66,29 @@ module.exports = function (db) {
   })
 
   router.post('/', async function (req, res, next) {
-      const { name, phone } = req.body
-      // console.log(name, phone)
-      var myObj = []
-      myObj.push(`"name" : "${name}"`)
-      myObj.push(`"phone" : "${phone}"`)
-      let noSql = '{';
-      if (myObj.length > 0) {
-        noSql += `${myObj.join(',')}`
+    const { name, phone } = req.body
+    // console.log(name, phone)
+    var myObj = []
+    myObj.push(`"name" : "${name}"`)
+    myObj.push(`"phone" : "${phone}"`)
+    let noSql = '{';
+    if (myObj.length > 0) {
+      noSql += `${myObj.join(',')}`
+    }
+    noSql += '}'
+    // console.log(noSql)
+    noSql = JSON.parse(noSql)
+    try {
+      const result = await db.collection("users").insertOne(noSql)
+      if (result) {
+        const insertedData = await db.collection("users").findOne({ _id: result.insertedId })
+        res.status(200).json(insertedData)
       }
-      noSql += '}'
-      // console.log(noSql)
-      noSql = JSON.parse(noSql)
-      try {
-        const resultInsertData  = await db.collection("users").insertOne(noSql)
-        if (resultInsertData){
-          const insertedData = await db.collection("users").findOne({ _id: resultInsertData.insertedId })
-          res.status(200).json(insertedData)
-        }
-      } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: "error menambahkan data" })
-      }
-      
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "error menambahkan data" })
+    }
+
   })
 
   router.get('/:id', async function (req, res, next) {
@@ -104,7 +104,33 @@ module.exports = function (db) {
     }
   })
 
+  router.put('/:id', async function (req, res, next) {
+    const id = req.params.id
+    const { name, phone } = req.body
+    var myObj = []
+    myObj.push(`"name" : "${name}"`)
+    myObj.push(`"phone" : "${phone}"`)
+    let noSql = '{';
+    if (myObj.length > 0) {
+      noSql += `${myObj.join(',')}`
+    }
+    noSql += '}'
+    console.log(noSql)
+    noSql = JSON.parse(noSql)
+    try {
+      const result = await db.collection("users").updateOne({ _id: new ObjectId(id) }, { $set: noSql})
+      console.log(result)
+      if (result) {
+        const updatedData = await db.collection("users").findOne({ _id: new ObjectId(id) })
+        res.status(200).json(updatedData)
+      }
+    } catch (error) {
+      console.log(error)
+      es.status(500).json({ message: "error update data" })
+    }
+  })
 
-  
+
+
   return router
 }
