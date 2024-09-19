@@ -173,23 +173,31 @@ module.exports = function (db) {
     }
   })
 
-  router.get('/edit/:id', (req, res) => {
-    select(req.session.user.id, req.params.id, (err, data) => {
-      if (err) {
-        console.error(err);
+  router.put('/:id', async function (req, res, next) {
+    const id = req.params.id
+    const { title, deadline, complete } = req.body
+    var myObj = []
+    myObj.push(`"title" : "${title}"`)
+    myObj.push(`"deadline" : "${deadline}"`)
+    myObj.push(`"complete" : ${complete}`)
+    let noSql = '{';
+    if (myObj.length > 0) {
+      noSql += `${myObj.join(',')}`
+    }
+    noSql += '}'
+    console.log(noSql)
+    noSql = JSON.parse(noSql)
+    try {
+      const result = await db.collection("todos").updateOne({ _id: new ObjectId(id) }, { $set: noSql})
+      console.log(result)
+      if (result) {
+        const updatedData = await db.collection("todos").findOne({ _id: new ObjectId(id) })
+        res.status(200).json(updatedData)
       }
-      // console.log(data.rows[0])
-      res.render('edit', { item: data.rows[0] })
-    })
-  })
-
-  router.post('/edit/:id', (req, res) => {
-    update(req.body.title, req.body.complete, req.body.deadline, req.session.user.id, req.params.id, (err) => {
-      if (err) {
-        console.error(err)
-      }
-      res.redirect('/todos');
-    })
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "error update data" })
+    }
   })
 
   router.get('/delete/:id', (req, res) => {
