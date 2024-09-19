@@ -59,7 +59,7 @@ module.exports = function (db) {
       executor: req.query.executor
     }
 
-    if (req.query.title) {
+    if (req.query.title != '""') {
       wheres.push(`"title" : ${req.query.title}`);
       filterPageArray.push(`&title=${req.query.title}`)
     }
@@ -130,20 +130,36 @@ module.exports = function (db) {
     }
   });
 
-  router.get('/add', helpers.isLoggedIn, (req, res) => {
-    res.render('add')
-  })
-
-  router.post('/add', helpers.isLoggedIn, (req, res) => {
-    add(req.body.title, req.session.user.id, (err) => {
-      if (err) {
-        console.error(err);
+  router.post('/', async function (req, res) {
+    const { title, executor } = req.body
+    const now = new Date();
+    const futureDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    var myObj = []
+    myObj.push(`"title" : "${title}"`)
+    myObj.push(`"complete": false`)
+    myObj.push(`"deadline": "${futureDate.toISOString()}"`)
+    myObj.push(`"executor" : "${executor}"`)
+    
+    let noSql = '{';
+    if (myObj.length > 0) {
+      noSql += `${myObj.join(',')}`
+    }
+    noSql += '}'
+    // console.log(noSql)
+    noSql = JSON.parse(noSql)
+    try {
+      const result = await db.collection("todos").insertOne(noSql)
+      if (result) {
+        const insertedData = await db.collection("todos").findOne({ _id: result.insertedId })
+        res.status(200).json(insertedData)
       }
-    })
-    res.redirect('/todos');
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "error menambahkan data" })
+    }
   })
 
-  router.get('/edit/:id', helpers.isLoggedIn, (req, res) => {
+  router.get('/edit/:id', (req, res) => {
     select(req.session.user.id, req.params.id, (err, data) => {
       if (err) {
         console.error(err);
@@ -153,7 +169,7 @@ module.exports = function (db) {
     })
   })
 
-  router.post('/edit/:id', helpers.isLoggedIn, (req, res) => {
+  router.post('/edit/:id', (req, res) => {
     update(req.body.title, req.body.complete, req.body.deadline, req.session.user.id, req.params.id, (err) => {
       if (err) {
         console.error(err)
@@ -162,7 +178,7 @@ module.exports = function (db) {
     })
   })
 
-  router.get('/delete/:id', helpers.isLoggedIn, (req, res) => {
+  router.get('/delete/:id', (req, res) => {
     const index = parseInt(req.params.id)
     remove(index, (err) => {
       if (err) {
