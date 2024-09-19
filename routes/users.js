@@ -15,7 +15,7 @@ module.exports = function (db) {
   router.get('/', async function (req, res, next) {
     const url = req.url == '/' ? '/?page=1' : req.url;
     const page = parseInt(req.query.page) || 1;
-    const limit = 5;
+    const limit = parseInt(req.query.limit) || 5;
     const offset = (page - 1) * limit;
     const wheres = []
     const values = []
@@ -100,7 +100,7 @@ module.exports = function (db) {
       res.status(200).json(data)
     } catch (error) {
       console.log(error)
-      es.status(500).json({ message: "error ambil data" })
+      res.status(500).json({ message: "error ambil data" })
     }
   })
 
@@ -126,7 +126,7 @@ module.exports = function (db) {
       }
     } catch (error) {
       console.log(error)
-      es.status(500).json({ message: "error update data" })
+      res.status(500).json({ message: "error update data" })
     }
   })
 
@@ -141,7 +141,7 @@ module.exports = function (db) {
       }
     } catch (error) {
       console.log(error)
-      es.status(500).json({ message: "error update data" })
+      res.status(500).json({ message: "error update data" })
     }
   })
 
