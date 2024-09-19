@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const helpers = require('../helpers/util')
+const helpers = require('../helpers/util');
+const { ObjectId } = require('mongodb');
 
 // module.exports = router;
 module.exports = function (db) {
@@ -129,6 +130,19 @@ module.exports = function (db) {
       res.status(500).json({ message: "error ambil data" })
     }
   });
+
+  router.get('/:id', async function (req, res, next) {
+    const id = req.params.id
+    console.log(id)
+    try {
+      const data = await db.collection("todos").findOne({ _id: new ObjectId(id) })
+      console.log(data)
+      res.status(200).json(data)
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "error ambil data" })
+    }
+  })
 
   router.post('/', async function (req, res) {
     const { title, executor } = req.body
