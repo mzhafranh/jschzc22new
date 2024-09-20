@@ -211,7 +211,7 @@ module.exports = function (db) {
       }
     } catch (error) {
       console.log(error)
-      res.status(500).json({ message: "error update data" })
+      res.status(500).json({ message: "error delete data" })
     }
   })
 

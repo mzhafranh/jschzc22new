@@ -13,7 +13,8 @@ module.exports = function (db) {
   }
 
   router.get('/', async function (req, res, next) {
-    const url = req.url == '/' ? '/?page=1' : req.url;
+    const url = req.url == '/' ? '/page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"' : req.url;
+    const param = new URLSearchParams(url)
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const offset = (page - 1) * limit;
@@ -21,9 +22,11 @@ module.exports = function (db) {
     const values = []
     const filter = req.url
     var count = 1;
-    var sortBy = req.query.sortBy == undefined ? "_id" : req.query.sortBy;
-    var sortMode = req.query.sortMode == undefined ? 1 : req.query.sortMode;
-    if (sortMode == 'asc') {
+    // var sortBy = req.query.sortBy == undefined ? "_id" : req.query.sortBy;
+    // var sortMode = req.query.sortMode == undefined ? 1 : req.query.sortMode;
+    let sortBy = param.get("sortBy")
+    let sortMode = param.get("sortMode")
+    if (sortMode == '"asc"') {
       sortMode = 1
     } else {
       sortMode = -1
@@ -31,7 +34,7 @@ module.exports = function (db) {
     var sortMongo = `{${sortBy} : ${sortMode}}`;
     sortMongo = JSON.parse(sortMongo);
 
-    console.log('Query: ' + req.query)
+    // console.log('Query: ' + req.query)
     console.log('Filter: ' + filter)
 
     let noSql = '{';
@@ -46,10 +49,10 @@ module.exports = function (db) {
 
     try {
       const totalData = await db.collection("users").countDocuments(noSql)
-      console.log('total data: ', totalData)
+      // console.log('total data: ', totalData)
       const pages = Math.ceil(totalData / limit)
       const data = await db.collection("users").find(noSql).skip(offset).limit(limit).sort(sortMongo).toArray()
-      console.log(data)
+      // console.log(data)
       res.status(200).json({
         "data": data,
         "total": totalData,
@@ -141,7 +144,7 @@ module.exports = function (db) {
       }
     } catch (error) {
       console.log(error)
-      res.status(500).json({ message: "error update data" })
+      res.status(500).json({ message: "error delete data" })
     }
   })
 

@@ -11,169 +11,57 @@
     <div class="container mt-3">
         <div class="card">
             <div class="card-header">
-                <div class="row align-items-center">
+                <h2 class="text-center">MongoDB Breads(Browse, Read, Edit, Add, Delete, Sort)</h2>
+            </div>
+            <form action="" id="form-data"></form>
+            <div class="card-body">
+                <div class="row g-2">
                     <div class="col-auto">
-                        <img src="/images/smol.png" alt="avatar" class="rounded-circle"
-                            style="border: 2px solid #D2D2D2" width="42px" height="42px">
+                        <div class="input-group">
+                            <div class="input-group-text">Show</div>
+                            <select class="form-select" name="limit-input" id="limit-input">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="">all</option>
+                            </select>
+                            <div class="input-group-text">entries</div>
+                        </div>
                     </div>
                     <div class="col">
-                        <h2>user@gmail.com</h2>
+                        <input type="text" class="form-control" id="search-input" placeholder="search">
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> sign
-                            out</button>
+                        <button class="btn btn-outline-secondary" id="search-button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-warning" id="reset-button"><i class="fa-solid fa-arrows-rotate"></i></button>
                     </div>
                 </div>
-            </div>
-            <div class="card-header">
-                <h2 class="text-center">PostgreSQL Breads(Browse, Read, Edit, Add, Delete, Sort)</h2>
-            </div>
-            <div class="card-body" style="padding-left: 0; padding-right: 0; padding-bottom: 0;">
-
-                <form action="" id="searchForm" method="get" style="padding: 16px 16px 0px 16px;">
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <label for="name" class="col-form-label">Title</label>
-                        </div>
-                        <div class="col-10">
-                            <input type="text" name="title" class="form-control" placeholder="insert your title"
-                                value="<%= filter.title %>">
-                        </div>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <label for="deadline">Deadline</label>
-                        </div>
-                        <div class="col-4">
-                            <input type="date" class="form-control" name="startDate" value="<%= filter.startDate %>">
-                        </div>
-                        <div class="col-2">
-                            <p class="text-center"> s.d. </p>
-                        </div>
-                        <div class="col-4">
-                            <input type="date" class="form-control" name="endDate" value="<%= filter.endDate %>">
-                        </div>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <label for="complete">Complete</label>
-                        </div>
-                        <div class="col-10">
-                            <select id="complete" name="complete" class="form-control">
-                                <option value="" <%=!filter.complete ? 'selected' : '' %>>--select complete--</option>
-                                <option value=0 <%=filter.complete && filter.complete==='0' ? 'selected' : '' %>>Not Yet
-                                </option>
-                                <option value=1 <%=filter.complete && filter.complete==='1' ? 'selected' : '' %>>Yes
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-2">
-                            <label for="operation">Operation</label>
-                        </div>
-                        <div class="col-10">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="operation" id="operationOr"
-                                    value="OR" <%=filter.operation==="OR" || !filter.operation ? 'checked' : '' %>>
-                                <label class="form-check-label" for="operationOr">OR</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="operation" id="operationAnd"
-                                    value="AND" <%=filter.operation==="AND" ? 'checked' : '' %>>
-                                <label class="form-check-label" for="operationAnd">AND</label>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="row mt-3" style="margin-left: 0px;">
-                        <button type="submit" class="btn btn-info btn-sm" style="width: 36px; margin-right: 5px;"><i
-                                class="fa-solid fa-magnifying-glass"></i></button>
-                        <a href="/" class="btn btn-warning btn-sm" style="width: 36px;"><i
-                                class="fa-solid fa-arrows-rotate"></i></a>
-                    </div>
-                </form>
-
-                <hr style="margin-left: 16px; margin-right: 16px;">
-
-                <table class="table table-striped table-hover table-borderless">
+                <table class="table table-striped table-hover table-borderless" id="table-users">
                     <thead>
-                        <tr>
-                            <th scope="col">No.</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Complete</th>
-                            <th scope="col">Deadline</th>
-                            <th scope="col">actions</th>
-                        </tr>
+
                     </thead>
                     <tbody>
-                        <% rows.forEach((item, index)=> { %>
 
-                            <td>
-                                <%= (page - 1) * 5 + index + 1 %>
-                            </td>
-                            <td>
-                                <%= item.title %>
-                            </td>
-                            <td>
-                                <%= item.complete ? 'Yes' : 'Not yet' %>
-                            </td>
-                            <td>
-                                <%= item.deadline %>
-                            </td>
-                            <td>
-                                <a href="/edit/<%= item.id %>" class="btn btn-success btn-sm" style="width: 36px;"><i
-                                        class="fa-solid fa-pen"></i></a>
-                                <!-- <button onclick="userConfirm('<%= item.name %>',<%= index %>)"
-                   class="btn btn-danger btn-sm">Delete</button> -->
-
-                                <button onclick="showConfirmationModal('<%= item.title %>',<%= item.id %>)"
-                                    class="btn btn-danger btn-sm" style="width: 36px;"><i
-                                        class="fa-solid fa-trash"></i></button>
-
-                                <!-- <button class="btn btn-danger btn-sm">Delete</button> -->
-                            </td>
-                            </tr>
-                            <% }) %>
                     </tbody>
                 </table>
-
             </div>
             <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="col-auto">
-                    <a href="/add" class="btn btn-primary btn-sm" style="width: 30px; height: 30px;">
-                      <i class="fa-solid fa-plus"></i>
-                    </a>
-                  </div>
-                  <div class="col">
-                    <nav aria-label="Page navigation" class="d-flex justify-content-end">
-                      <ul class="pagination mb-0">
-                        <li class="page-item">
-                          <a class="page-link" style="border-radius: 5px 0 0 5px;" href="/?page=<%= parseInt(page) === 1 ? 1 : page - 1 %><%=filterPage%>" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                          </a>
-                        </li>
-                        <% for(let i=1; i <= pages; i++) { %>
-                          <li class="page-item">
-                            <a class="page-link <%= page == i ? `active` : `` %>" href="/?page=<%=i%><%=filterPage%>">
-                              <%=i%>
-                            </a>
-                          </li>
-                        <% } %>
-                        <li class="page-item">
-                          <a class="page-link" style="border-radius: 0 5px 5px 0;" href="/?page=<%= parseInt(page) === pages ? pages : parseInt(page) + 1 %><%=filterPage%>" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <button class="btn btn-primary btn-sm" id="add-button">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="col">
+
+                    </div>
+                    <div class="col-auto">
+                        <p id="entries-text">Showing 1 to 5 of 6 entries</p>
+                        <ul class="pagination mb-0">
+
+                        </ul>
+                    </div>
                 </div>
-              </div>
+            </div>
         </div>
     </div>
     <br>
@@ -227,6 +115,128 @@
         }
 
     </script>
+
+    <script>
+        const readData = (link) => {
+            fetch(`http://localhost:3000/users?${link}`).then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+            .then((response) => {
+
+                let linkParams = new URLSearchParams(link)
+
+                let htmlThead = '';
+                htmlThead += `<tr>`
+
+                htmlThead += `<th scope="col">No.</th>`
+
+                console.log(linkParams.get('sortBy') == '"_id"', linkParams.get("sortMode") == '"desc"')
+                
+                if (linkParams.get('sortBy') == '"name"' && linkParams.get("sortMode") == '"asc"'){
+                    linkParams.set("sortMode", '"desc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-down" style="margin-left:10px;"></i> Name</button></th>`
+                }
+                else if (linkParams.get('sortBy') == '"name"' && linkParams.get("sortMode") == '"desc"'){
+                    linkParams.set("sortMode", '"asc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-up" style="margin-left:10px;"></i> Name</button></th>`
+                }
+                else {
+                    let param = new URLSearchParams(link)
+                    param.set('sortBy', '"name"')
+                    param.set('sortMode', '"asc"')
+                    let modifiedLink = param.toString();
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${modifiedLink}')"><i class="fa-solid fa-sort" style="margin-left:10px;"></i> Name</button></th>`
+                }
+
+                if (linkParams.get('sortBy') == '"phone"' && linkParams.get("sortMode") == '"asc"'){
+                    linkParams.set("sortMode", '"desc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-down" style="margin-left:10px;"></i> Phone</button></th>`
+                }
+                else if (linkParams.get('sortBy') == '"phone"' && linkParams.get("sortMode") == '"desc"'){
+                    linkParams.set("sortMode", '"asc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-up" style="margin-left:10px;"></i> Phone</button></th>`
+                }
+                else {
+                    let param = new URLSearchParams(link)
+                    param.set('sortBy', '"phone"')
+                    param.set('sortMode', '"asc"')
+                    let modifiedLink = param.toString();
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${modifiedLink}')"><i class="fa-solid fa-sort" style="margin-left:10px;"></i> Phone</button></th>`
+                }
+
+                htmlThead +=`<th>Action</th>`
+                htmlThead +=`</tr>`
+                document.querySelector('table thead').innerHTML = htmlThead;
+
+                let htmlTbody = '';
+                response.data.forEach((item, index) => {
+                
+                    htmlTbody += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.phone}</td>
+                    <td>
+                    <button type="button" class="btn btn-success" style="color: #ffffff;" onClick="editData('${item._id}')"><i class="fa-solid fa-pencil"></i></button>
+                    <button type="button" class="btn btn-danger" onClick="deleteData('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
+                    <a href="/users/${item._id}/todos" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i></a>
+                    </td>
+                </tr>
+                `
+                })
+                document.querySelector('table tbody').innerHTML = htmlTbody
+
+                let pageParam = new URLSearchParams(link)
+                let prevPageLink = ''
+                let nextPageLink = ''
+                let pageLink = ''
+
+                if (pageParam.get('page') == 1){
+                    prevPageLink = pageParam.toString()
+                    pageParam.set('page', parseInt(pageParam.get('page'))+1)
+                    nextPageLink = pageParam.toString()
+                } else if (pageParam.get('page') == pageParam.get('pages')){
+                    nextPageLink = pageParam.toString()
+                    pageParam.set('page', pageParam.get('page')-1)
+                    prevPageLink = pageParam.toString()
+                } else {
+                    pageParam.set('page', pageParam.get('page')-1)
+                    prevPageLink = pageParam.toString()
+                    
+                    pageParam.set('page', parseInt(pageParam.get('page'))+2)
+                    nextPageLink = pageParam.toString()
+                    
+                }
+
+                let paging = '';
+
+                paging += `<button type="button" class="page-link" onClick='readData("${prevPageLink}")'><span aria-hidden="true">&laquo;</span></button>`
+
+                for (let i = 1; i <= response.pages; i++) {
+                    pageParam.set('page', i)
+                    pageLink = pageParam.toString()
+
+                    if (link.includes(`page=${i}`)){
+                        paging += `<li class="page-item"><button type="button" class="page-link active" onClick='readData("${pageLink}")'>${i}</button></li>`
+                    }
+                    else {
+                        paging += `<li class="page-item"><button type="button" class="page-link" onClick='readData("${pageLink}")'>${i}</button></li>`
+                    }
+                }
+                paging += `<button type="button" class="page-link" onClick='readData("${nextPageLink}")'><span aria-hidden="true">&raquo;</span></button>`
+
+                document.querySelector('ul').innerHTML = paging
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+        }
+        readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+    </script>
+
 </body>
 
 </html>

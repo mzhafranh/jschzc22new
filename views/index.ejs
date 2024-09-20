@@ -1,50 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Signup - Rubicamp</title>
-  <link href="/stylesheets/bootstrap.css" rel="stylesheet">
-  <link rel="apple-touch-icon" href="https://getbootstrap.com/docs/5.3/assets/img/favicons/favicon-32x32.png" sizes="180x180">
-  <link rel="icon" href="https://getbootstrap.com/docs/5.3/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-  <link rel="icon" href="https://getbootstrap.com/docs/5.3/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-  <link rel="manifest" href="https://getbootstrap.com/docs/5.3/assets/img/favicons/manifest.json">
-  <link rel="mask-icon" href="https://getbootstrap.com/docs/5.3/assets/img/favicons/safari-pinned-tab.svg" color="#712cf9">
-  <link rel="icon" href="https://getbootstrap.com/docs/5.3/assets/img/favicons/favicon.ico">
+    <title>BREAD (Browse, Read, Edit, Add, Delete)</title>
+    <link href="/stylesheets/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body style="background-color: #F5F5F5;">
-  <div class="container mt-5 d-flex justify-content-center">
-    <div class="text-center">
-      <img src="/images/logo.png" class="img-fluid" alt="logo" style="height: 96px;">
-      <h3>Please sign in</h3>
-      <form action="" method="post">
-        <div class="card mt-3">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item" style="padding: 6px 0 6px 0;">
-              <input type="email" class="form-control" style="border: none; box-shadow: none;"  name="email" id="email" placeholder="Email address">
-            </li>
-            <li class="list-group-item" style="padding: 6px 0 6px 0;">
-              <input type="password" class="form-control" style="border: none; box-shadow: none;"  name="password" id="password" placeholder="Password">
-            </li>
-          </ul>
+
+<body>
+    <div class="container mt-3">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">MongoDB Breads(Browse, Read, Edit, Add, Delete, Sort)</h2>
+            </div>
+            <form action="" id="form-data"></form>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <div class="input-group-text">Show</div>
+                            <select class="form-select" name="limit-input" id="limit-input">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="">all</option>
+                            </select>
+                            <div class="input-group-text">entries</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="search-input" placeholder="search">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-secondary" id="search-button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-warning" id="reset-button"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    </div>
+                </div>
+                <table class="table table-striped table-hover table-borderless" id="table-users">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <button class="btn btn-primary btn-sm" id="add-button">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="col">
+
+                    </div>
+                    <div class="col-auto">
+                        <p id="entries-text">Showing 1 to 5 of 6 entries</p>
+                        <ul class="pagination mb-0">
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-2" style="width: 100%;">Sign In</button>
-         <!-- <a href="/test" class="btn btn-primary mt-2" style="width: 100%;">Sign In</a> -->
-      </form>
-      <p>doesn't have a account? please <a href="/register">sign up</a></p>
-      <br>
-      <% if(info.length > 0) {%>
-        <div class="alert alert-danger mt-3" role="alert">
-          <%= info %>
-        </div>
-        <% } %>
-      <% if(success.length > 0) {%>
-        <div class="alert alert-success mt-3" role="alert">
-          <%= success %>
-        </div>
-      <% } %>
-      <p style="color: #6c757d;">©️ 2017-2023</p>
     </div>
-  </div>
+    <br>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Delete Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-paragraph">Apakah kamu yakin akang menghapus data NAMA?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
+                        style="width: 90px;">No</button>
+                    <button type="button" class="btn btn-warning btn-sm" id="confirmButton"
+                        style="width: 90px;">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/bootstrap.bundle.js"></script>
+
+    <script>
+        // Function to show the modal
+        function showConfirmationModal(name, id) {
+            // Show the modal
+            var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'), {
+                backdrop: 'static', // Prevent closing the modal by clicking outside
+                keyboard: false     // Prevent closing the modal by pressing Esc
+            });
+
+            const paragraph = document.getElementById('modal-paragraph');
+            paragraph.textContent = `Apakah kamu yakin akang menghapus data ${name}?`
+
+            // Show the modal
+            confirmationModal.show();
+
+
+            // Set up the confirm button click event
+            document.getElementById('confirmButton').addEventListener('click', function () {
+                window.location.href = `/delete/${id}`// Call the callback function on confirmation
+                confirmationModal.hide(); // Hide the modal
+            });
+        }
+
+    </script>
+
+    <script>
+        const readData = (link) => {
+            fetch(`http://localhost:3000/users?${link}`).then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+            .then((response) => {
+
+                let linkParams = new URLSearchParams(link)
+
+                let htmlThead = '';
+                htmlThead += `<tr>`
+
+                htmlThead += `<th scope="col">No.</th>`
+
+                console.log(linkParams.get('sortBy') == '"_id"', linkParams.get("sortMode") == '"desc"')
+                
+                if (linkParams.get('sortBy') == '"name"' && linkParams.get("sortMode") == '"asc"'){
+                    linkParams.set("sortMode", '"desc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-down" style="margin-left:10px;"></i> Name</button></th>`
+                }
+                else if (linkParams.get('sortBy') == '"name"' && linkParams.get("sortMode") == '"desc"'){
+                    linkParams.set("sortMode", '"asc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-up" style="margin-left:10px;"></i> Name</button></th>`
+                }
+                else {
+                    let param = new URLSearchParams(link)
+                    param.set('sortBy', '"name"')
+                    param.set('sortMode', '"asc"')
+                    let modifiedLink = param.toString();
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${modifiedLink}')"><i class="fa-solid fa-sort" style="margin-left:10px;"></i> Name</button></th>`
+                }
+
+                if (linkParams.get('sortBy') == '"phone"' && linkParams.get("sortMode") == '"asc"'){
+                    linkParams.set("sortMode", '"desc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-down" style="margin-left:10px;"></i> Phone</button></th>`
+                }
+                else if (linkParams.get('sortBy') == '"phone"' && linkParams.get("sortMode") == '"desc"'){
+                    linkParams.set("sortMode", '"asc"')
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${linkParams.toString()}')"><i class="fa-solid fa-sort-up" style="margin-left:10px;"></i> Phone</button></th>`
+                }
+                else {
+                    let param = new URLSearchParams(link)
+                    param.set('sortBy', '"phone"')
+                    param.set('sortMode', '"asc"')
+                    let modifiedLink = param.toString();
+                    htmlThead += `<th scope="col"><button class="btn" style="font-weight: bold; padding: 0 0 0 0;" onclick="readData('${modifiedLink}')"><i class="fa-solid fa-sort" style="margin-left:10px;"></i> Phone</button></th>`
+                }
+
+                htmlThead +=`<th>Action</th>`
+                htmlThead +=`</tr>`
+                document.querySelector('table thead').innerHTML = htmlThead;
+
+                let htmlTbody = '';
+                response.data.forEach((item, index) => {
+                
+                    htmlTbody += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.phone}</td>
+                    <td>
+                    <button type="button" class="btn btn-success" style="color: #ffffff;" onClick="editData('${item._id}')"><i class="fa-solid fa-pencil"></i></button>
+                    <button type="button" class="btn btn-danger" onClick="deleteData('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
+                    <a href="/users/${item._id}/todos" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i></a>
+                    </td>
+                </tr>
+                `
+                })
+                document.querySelector('table tbody').innerHTML = htmlTbody
+
+                let pageParam = new URLSearchParams(link)
+                let prevPageLink = ''
+                let nextPageLink = ''
+                let pageLink = ''
+
+                if (pageParam.get('page') == 1){
+                    prevPageLink = pageParam.toString()
+                    pageParam.set('page', parseInt(pageParam.get('page'))+1)
+                    nextPageLink = pageParam.toString()
+                } else if (pageParam.get('page') == pageParam.get('pages')){
+                    nextPageLink = pageParam.toString()
+                    pageParam.set('page', pageParam.get('page')-1)
+                    prevPageLink = pageParam.toString()
+                } else {
+                    pageParam.set('page', pageParam.get('page')-1)
+                    prevPageLink = pageParam.toString()
+                    
+                    pageParam.set('page', parseInt(pageParam.get('page'))+2)
+                    nextPageLink = pageParam.toString()
+                    
+                }
+
+                let paging = '';
+
+                paging += `<button type="button" class="page-link" onClick='readData("${prevPageLink}")'><span aria-hidden="true">&laquo;</span></button>`
+
+                for (let i = 1; i <= response.pages; i++) {
+                    pageParam.set('page', i)
+                    pageLink = pageParam.toString()
+
+                    if (link.includes(`page=${i}`)){
+                        paging += `<li class="page-item"><button type="button" class="page-link active" onClick='readData("${pageLink}")'>${i}</button></li>`
+                    }
+                    else {
+                        paging += `<li class="page-item"><button type="button" class="page-link" onClick='readData("${pageLink}")'>${i}</button></li>`
+                    }
+                }
+                paging += `<button type="button" class="page-link" onClick='readData("${nextPageLink}")'><span aria-hidden="true">&raquo;</span></button>`
+
+                document.querySelector('ul').innerHTML = paging
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+        }
+        readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+    </script>
+
 </body>
+
 </html>
