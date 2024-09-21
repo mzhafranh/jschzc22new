@@ -13,10 +13,10 @@ module.exports = function (db) {
   }
 
   router.get('/', async function (req, res, next) {
-    const url = req.url == '/' ? '/page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"' : req.url;
+    const url = req.url == '/' ? 'page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"' : req.url.slice(2);
     const param = new URLSearchParams(url)
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
+    const page = parseInt(param.get("page"));
+    const limit = parseInt(param.get("limit"));
     const offset = (page - 1) * limit;
     const wheres = []
     const values = []
@@ -50,7 +50,7 @@ module.exports = function (db) {
     try {
       const totalData = await db.collection("users").countDocuments(noSql)
       // console.log('total data: ', totalData)
-      const pages = Math.ceil(totalData / limit)
+      const pages = limit ? Math.ceil(totalData / limit) : 1
       const data = await db.collection("users").find(noSql).skip(offset).limit(limit).sort(sortMongo).toArray()
       // console.log(data)
       res.status(200).json({
