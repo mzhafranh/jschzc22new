@@ -102,20 +102,21 @@
                         <div class="row mb-3">
                             <label for="name" class="col-form-label col-md-2">Name</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" id="name" required>
+                                <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label for="phone" class="col-form-label col-md-2">Phone</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" id="phone" required>
+                                <input type="text" class="form-control" id="phone" name="phone" required>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" id="closeOptionAddUserModal">Close</button>
-                    <button type="submit" class="btn btn-primary" form="addUserForm" id="submitAddUserModal">Save changes</button>
+                    <button type="submit" class="btn btn-primary" form="addUserForm" id="submitAddUserModal">Save
+                        changes</button>
                 </div>
             </div>
         </div>
@@ -153,6 +154,22 @@
                 formAddUserModal.style.display = 'none';
                 overlay.style.display = 'none';
             }
+        });
+
+        document.getElementById('addUserForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+
+            const formData = new FormData(this); // Get the form data
+
+            // Use fetch to send the form data to the server without redirection
+            fetch('http://localhost:3000/users', {
+                method: 'POST',
+                body: formData,
+            }).then((response)=>{
+                formAddUserModal.style.display = 'none';
+                overlay.style.display = 'none';
+                readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+            })
         });
     </script>
 
