@@ -19,11 +19,6 @@ module.exports = function (db) {
     const limit = parseInt(param.get("limit"));
     const offset = (page - 1) * limit;
     const wheres = []
-    const values = []
-    const filter = req.url
-    var count = 1;
-    // var sortBy = req.query.sortBy == undefined ? "_id" : req.query.sortBy;
-    // var sortMode = req.query.sortMode == undefined ? 1 : req.query.sortMode;
     let sortBy = param.get("sortBy")
     let sortMode = param.get("sortMode")
     if (sortMode == '"asc"') {
@@ -33,9 +28,8 @@ module.exports = function (db) {
     }
     var sortMongo = `{${sortBy} : ${sortMode}}`;
     sortMongo = JSON.parse(sortMongo);
-
-    // console.log('Query: ' + req.query)
-    console.log('Filter: ' + filter)
+    
+    console.log('Url: ' + url)
 
     let noSql = '{';
     if (wheres.length > 0) {

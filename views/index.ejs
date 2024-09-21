@@ -39,11 +39,11 @@
                         <div class="input-group">
                             <div class="input-group-text">Show</div>
                             <form id="limit-form">
-                            <select class="form-select" name="limit-input" id="limit-input">
-                                <option value="5" selected>5</option>
-                                <option value="10">10</option>
-                                <option value="">all</option>
-                            </select>
+                                <select class="form-select" name="limit-input" id="limit-input">
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                    <option value="0">all</option>
+                                </select>
                             </form>
                             <div class="input-group-text">entries</div>
                         </div>
@@ -125,6 +125,13 @@
     </div>
 
     <script>
+        document.getElementById('limit-form').addEventListener('change', function () {
+            const selectElement = document.getElementById('limit-input');
+            readData(`page=1&limit=${selectElement.value}&query=""&sortBy="_id"&sortMode="desc"`)
+        });
+    </script>
+
+    <script>
         // JavaScript to handle modal functionality
         const openAddUserModal = document.getElementById('add-button');
         const closeAddUserModal = document.getElementById('closeAddUserModal');
@@ -167,7 +174,7 @@
             fetch('http://localhost:3000/users', {
                 method: 'POST',
                 body: formData,
-            }).then((response)=>{
+            }).then((response) => {
                 formAddUserModal.style.display = 'none';
                 overlay.style.display = 'none';
                 readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
@@ -271,7 +278,9 @@
                     }
 
                     let showEntryText = ''
-                    if (response.page * response.limit > response.total) {
+                    if(response.total == 0){
+                        showEntryText += `<span class="me-2" id="entries-text">Showing 0 to 0 of 0 entries</span>`
+                    } else if (response.page * response.limit > response.total || response.limit == 0) {
                         showEntryText += `<span class="me-2" id="entries-text">Showing ${startingIndex + 1} to ${response.total} of ${response.total} entries</span>`
                     } else {
                         showEntryText += `<span class="me-2" id="entries-text">Showing ${startingIndex + 1} to ${response.page * response.limit} of ${response.total} entries</span>`
