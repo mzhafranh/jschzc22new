@@ -170,13 +170,15 @@
                 htmlThead +=`<th>Action</th>`
                 htmlThead +=`</tr>`
                 document.querySelector('table thead').innerHTML = htmlThead;
+                
+                let startingIndex = (linkParams.get("page") - 1) * linkParams.get("limit")
 
                 let htmlTbody = '';
                 response.data.forEach((item, index) => {
                 
                     htmlTbody += `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td>${startingIndex + index + 1}</td>
                     <td>${item.name}</td>
                     <td>${item.phone}</td>
                     <td>
