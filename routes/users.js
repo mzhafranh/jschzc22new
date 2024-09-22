@@ -17,8 +17,8 @@ module.exports = function (db) {
     const param = new URLSearchParams(url)
     const page = parseInt(param.get("page"));
     const limit = parseInt(param.get("limit"));
+    const queryString = param.get("query").replace(/"/g, '')
     const offset = (page - 1) * limit;
-    const wheres = []
     let sortBy = param.get("sortBy")
     let sortMode = param.get("sortMode")
     if (sortMode == '"asc"') {
@@ -30,22 +30,34 @@ module.exports = function (db) {
     sortMongo = JSON.parse(sortMongo);
     
     console.log('Url: ' + url)
+    console.log('Query: ' + queryString)
+    console.log(queryString == '""')
 
-    let noSql = '{';
-    if (wheres.length > 0) {
-      noSql += `${wheres.join(',')}`
+    let searchQuery = {}
+    if (queryString != ''){
+      searchQuery = {
+        $or: [
+          { name: { $regex: queryString, $options: 'i' } },  // Case-insensitive regex for name
+          { phone: { $regex: queryString, $options: 'i' } }  // Case-insensitive regex for phone
+        ]
+      };
     }
-    noSql += '}'
 
-    noSql = JSON.parse(noSql)
+    // let noSql = '{';
+    // if (wheres.length > 0) {
+    //   noSql += `${wheres.join(',')}`
+    // }
+    // noSql += '}'
+
+    // noSql = JSON.parse(noSql)
 
     // console.log(noSql)
 
     try {
-      const totalData = await db.collection("users").countDocuments(noSql)
-      // console.log('total data: ', totalData)
+      const totalData = await db.collection("users").countDocuments(searchQuery)
+      console.log('total data: ', totalData)
       const pages = limit ? Math.ceil(totalData / limit) : 1
-      const data = await db.collection("users").find(noSql).skip(offset).limit(limit).sort(sortMongo).toArray()
+      const data = await db.collection("users").find(searchQuery).skip(offset).limit(limit).sort(sortMongo).toArray()
       // console.log(data)
       res.status(200).json({
         "data": data,
@@ -141,8 +153,6 @@ module.exports = function (db) {
       res.status(500).json({ message: "error delete data" })
     }
   })
-
-
 
   return router
 }

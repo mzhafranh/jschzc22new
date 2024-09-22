@@ -32,7 +32,6 @@
             <div class="card-header">
                 <h2 class="text-center">MongoDB Breads(Browse, Read, Edit, Add, Delete, Sort)</h2>
             </div>
-            <form action="" id="form-data"></form>
             <div class="card-body">
                 <div class="row g-2">
                     <div class="col-auto">
@@ -48,13 +47,14 @@
                             <div class="input-group-text">entries</div>
                         </div>
                     </div>
+
                     <div class="col">
-                        <input type="text" class="form-control" id="search-input" placeholder="search">
+                            <input type="text" class="form-control" id="search-input" placeholder="search">
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-outline-secondary" id="search-button"><i
+                        <button class="btn btn-outline-secondary" id="search-button" onclick="search()"><i
                                 class="fa-solid fa-magnifying-glass"></i></button>
-                        <button class="btn btn-outline-warning" id="reset-button"><i
+                        <button class="btn btn-outline-warning" id="reset-button" onclick="reset()"><i
                                 class="fa-solid fa-arrows-rotate"></i></button>
                     </div>
                 </div>
@@ -134,6 +134,19 @@
     </script>
 
     <script>
+        function search() {
+            const searchForm = document.getElementById('search-form');
+            const query = document.getElementById('search-input');
+            const selectElement = document.getElementById('limit-input');
+            readData(`page=1&limit=${selectElement.value}&query="${query.value}"&sortBy="_id"&sortMode="desc"`)
+        }
+
+        function reset() {
+            readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+        }
+    </script>
+
+    <script>
         // JavaScript to handle modal functionality
         const closeUserModal = document.getElementById('closeUserModal');
         const closeOptionUserModal = document.getElementById('closeOptionUserModal');
@@ -165,16 +178,16 @@
             submitUser.innerText = "Save changes"
             document.getElementById('name').value = name;
             document.getElementById('phone').value = phone;
-            submitUser.onclick = function(){ editUser(id)};
+            submitUser.onclick = function () { editUser(id) };
         }
 
-        function openDeleteModal(id){
+        function openDeleteModal(id) {
             formUserModal.style.display = 'block'
             userForm.style.display = 'none'
             deleteConfirmation.style.display = 'block'
             closeOptionUserModal.innerText = "No"
             submitUser.innerText = "Yes"
-            submitUser.onclick = function() { deleteUser(id); }
+            submitUser.onclick = function () { deleteUser(id); }
         }
 
         function addUser() {
@@ -183,7 +196,7 @@
                 method: 'POST',
                 body: formData,
             }).then((response) => {
-                closeModal(); 
+                closeModal();
                 readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
             })
         }
@@ -194,16 +207,16 @@
                 method: 'PUT',
                 body: formData,
             }).then((response) => {
-                closeModal(); 
+                closeModal();
                 readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
             })
         }
 
-        function deleteUser(id){
+        function deleteUser(id) {
             fetch(`http://localhost:3000/users/${id}`, {
                 method: 'DELETE',
             }).then((response) => {
-                closeModal(); 
+                closeModal();
                 readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
             })
         }
@@ -214,11 +227,11 @@
         }
 
         // Hide modal and overlay when close button is clicked
-        closeUserModal.onclick = function() {
+        closeUserModal.onclick = function () {
             closeModal()
         }
 
-        closeOptionUserModal.onclick = function() {
+        closeOptionUserModal.onclick = function () {
             closeModal()
         }
     </script>
