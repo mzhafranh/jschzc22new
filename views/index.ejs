@@ -114,6 +114,9 @@
                             </div>
                         </div>
                     </form>
+                    <div id="deleteConfirmation" style="display:none;">
+                        <p class="mb-0">Are you sure?</p>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" id="closeOptionUserModal">Close</button>
@@ -137,25 +140,41 @@
         const formUserModal = document.getElementById('formUserModal');
         const userForm = document.getElementById('userForm');
         const submitUser = document.getElementById('submitUser');
+        const deleteConfirmation = document.getElementById('deleteConfirmation');
         const overlay = document.getElementById('overlay');
 
         document.getElementById('add-button').addEventListener('click', function () {
-            formUserModal.style.display = 'block';
-            overlay.style.display = 'block';
-            userForm.reset();
-            document.getElementById('name').value = '';
-            document.getElementById('phone').value = '';
+            formUserModal.style.display = 'block'
+            userForm.style.display = 'block'
+            deleteConfirmation.style.display = 'none'
+            overlay.style.display = 'block'
+            userForm.reset()
+            closeOptionUserModal.innerText = "Close"
+            submitUser.innerText = "Save changes"
+            document.getElementById('name').value = ''
+            document.getElementById('phone').value = ''
             submitUser.onclick = addUser;
         });
 
         function openEditModal(id, name, phone) {
-            formUserModal.style.display = 'block';
-            overlay.style.display = 'block';
+            formUserModal.style.display = 'block'
+            userForm.style.display = 'block'
+            deleteConfirmation.style.display = 'none'
+            overlay.style.display = 'block'
+            closeOptionUserModal.innerText = "Close"
+            submitUser.innerText = "Save changes"
             document.getElementById('name').value = name;
             document.getElementById('phone').value = phone;
-            submitUser.onclick = function(){
-                editUser(id)
-            };
+            submitUser.onclick = function(){ editUser(id)};
+        }
+
+        function openDeleteModal(id){
+            formUserModal.style.display = 'block'
+            userForm.style.display = 'none'
+            deleteConfirmation.style.display = 'block'
+            closeOptionUserModal.innerText = "No"
+            submitUser.innerText = "Yes"
+            submitUser.onclick = function() { deleteUser(id); }
         }
 
         function addUser() {
@@ -180,6 +199,15 @@
             })
         }
 
+        function deleteUser(id){
+            fetch(`http://localhost:3000/users/${id}`, {
+                method: 'DELETE',
+            }).then((response) => {
+                closeModal(); 
+                readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+            })
+        }
+
         function closeModal() {
             formUserModal.style.display = 'none';
             overlay.style.display = 'none';
@@ -193,7 +221,6 @@
         closeOptionUserModal.onclick = function() {
             closeModal()
         }
-
     </script>
 
     <script>
@@ -261,7 +288,7 @@
                     <td>${item.phone}</td>
                     <td>
                     <button type="button" class="btn btn-success" style="color: #ffffff;" onClick="openEditModal('${item._id}', '${item.name}', '${item.phone}')"><i class="fa-solid fa-pencil"></i></button>
-                    <button type="button" class="btn btn-danger" onClick="deleteData('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
+                    <button type="button" class="btn btn-danger" onClick="openDeleteModal('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
                     <a href="/users/${item._id}/todos" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i></a>
                     </td>
                 </tr>
