@@ -92,15 +92,15 @@
     <div id="overlay"></div>
 
     <!-- Modal Structure -->
-    <div id="formAddUserModal" class="modal" tabindex="-1" style="display: none;">
+    <div id="formUserModal" class="modal" tabindex="-1" style="display: none;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">User Form</h5>
-                    <button type="button" class="btn-close" id="closeAddUserModal"></button>
+                    <button type="button" class="btn-close" id="closeUserModal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addUserForm">
+                    <form id="userForm">
                         <div class="row mb-3">
                             <label for="name" class="col-form-label col-md-2">Name</label>
                             <div class="col-md-10">
@@ -116,9 +116,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="closeOptionAddUserModal">Close</button>
-                    <button type="submit" class="btn btn-primary" form="addUserForm" id="submitAddUserModal">Save
-                        changes</button>
+                    <button class="btn btn-secondary" id="closeOptionUserModal">Close</button>
+                    <button class="btn btn-primary" id="submitUser">Save changes</button>
                 </div>
             </div>
         </div>
@@ -133,53 +132,68 @@
 
     <script>
         // JavaScript to handle modal functionality
-        const openAddUserModal = document.getElementById('add-button');
-        const closeAddUserModal = document.getElementById('closeAddUserModal');
-        const closeOptionAddUserModal = document.getElementById('closeOptionAddUserModal');
-        const formAddUserModal = document.getElementById('formAddUserModal');
+        const closeUserModal = document.getElementById('closeUserModal');
+        const closeOptionUserModal = document.getElementById('closeOptionUserModal');
+        const formUserModal = document.getElementById('formUserModal');
+        const userForm = document.getElementById('userForm');
+        const submitUser = document.getElementById('submitUser');
         const overlay = document.getElementById('overlay');
 
-        // Show modal and overlay when button is clicked
-        openAddUserModal.addEventListener('click', function () {
-            formAddUserModal.style.display = 'block';
+        document.getElementById('add-button').addEventListener('click', function () {
+            formUserModal.style.display = 'block';
             overlay.style.display = 'block';
+            userForm.reset();
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            submitUser.onclick = addUser;
         });
 
-        // Hide modal and overlay when close button is clicked
-        closeAddUserModal.addEventListener('click', function () {
-            formAddUserModal.style.display = 'none';
-            overlay.style.display = 'none';
-        });
+        function openEditModal(id, name, phone) {
+            formUserModal.style.display = 'block';
+            overlay.style.display = 'block';
+            document.getElementById('name').value = name;
+            document.getElementById('phone').value = phone;
+            submitUser.onclick = function(){
+                editUser(id)
+            };
+        }
 
-        // Hide modal and overlay when close button is clicked
-        closeOptionAddUserModal.addEventListener('click', function () {
-            formAddUserModal.style.display = 'none';
-            overlay.style.display = 'none';
-        });
-
-        // Hide modal and overlay when clicking outside the modal content
-        window.addEventListener('click', function (event) {
-            if (event.target == overlay) {
-                formAddUserModal.style.display = 'none';
-                overlay.style.display = 'none';
-            }
-        });
-
-        document.getElementById('addUserForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission behavior
-
-            const formData = new FormData(this); // Get the form data
-
-            // Use fetch to send the form data to the server without redirection
+        function addUser() {
+            const formData = new FormData(userForm);
             fetch('http://localhost:3000/users', {
                 method: 'POST',
                 body: formData,
             }).then((response) => {
-                formAddUserModal.style.display = 'none';
-                overlay.style.display = 'none';
+                closeModal(); 
                 readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
             })
-        });
+        }
+
+        function editUser(id) {
+            const formData = new FormData(userForm);
+            fetch(`http://localhost:3000/users/${id}`, {
+                method: 'PUT',
+                body: formData,
+            }).then((response) => {
+                closeModal(); 
+                readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+            })
+        }
+
+        function closeModal() {
+            formUserModal.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        // Hide modal and overlay when close button is clicked
+        closeUserModal.onclick = function() {
+            closeModal()
+        }
+
+        closeOptionUserModal.onclick = function() {
+            closeModal()
+        }
+
     </script>
 
     <script>
@@ -246,7 +260,7 @@
                     <td>${item.name}</td>
                     <td>${item.phone}</td>
                     <td>
-                    <button type="button" class="btn btn-success" style="color: #ffffff;" onClick="editData('${item._id}')"><i class="fa-solid fa-pencil"></i></button>
+                    <button type="button" class="btn btn-success" style="color: #ffffff;" onClick="openEditModal('${item._id}', '${item.name}', '${item.phone}')"><i class="fa-solid fa-pencil"></i></button>
                     <button type="button" class="btn btn-danger" onClick="deleteData('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
                     <a href="/users/${item._id}/todos" class="btn btn-warning"><i class="fa-solid fa-right-from-bracket"></i></a>
                     </td>
@@ -274,11 +288,10 @@
 
                         pageParam.set('page', parseInt(pageParam.get('page')) + 2)
                         nextPageLink = pageParam.toString()
-
                     }
 
                     let showEntryText = ''
-                    if(response.total == 0){
+                    if (response.total == 0) {
                         showEntryText += `<span class="me-2" id="entries-text">Showing 0 to 0 of 0 entries</span>`
                     } else if (response.page * response.limit > response.total || response.limit == 0) {
                         showEntryText += `<span class="me-2" id="entries-text">Showing ${startingIndex + 1} to ${response.total} of ${response.total} entries</span>`
