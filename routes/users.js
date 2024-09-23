@@ -30,8 +30,8 @@ module.exports = function (db) {
     sortMongo = JSON.parse(sortMongo);
     
     console.log('Url: ' + url)
-    console.log('Query: ' + queryString)
-    console.log(queryString == '""')
+    // console.log('Query: ' + queryString)
+    // console.log(queryString == '""')
 
     let searchQuery = {}
     if (queryString != ''){
@@ -152,6 +152,10 @@ module.exports = function (db) {
       console.log(error)
       res.status(500).json({ message: "error delete data" })
     }
+  })
+
+  router.get('/:id/todos', async function (req, res, next) {
+    res.render('todos')
   })
 
   return router
