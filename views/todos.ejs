@@ -69,7 +69,12 @@
             </form>
             <div class="card-header" style="border-bottom: none;">
                 <div class="row ml-0">
-                    <input type="text" name="add-title" class="form-control" placeholder="title">
+                    <div class="col">
+                        <input type="text" name="add-todo-title" id="add-todo-title" class="form-control" placeholder="title">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary" onclick="addTodo()"><i class="fa-solid fa-arrow-down"></i></button>
+                    </div>
                 </div>
             </div>
 
@@ -229,6 +234,22 @@
                 $('#todos-list').html(todosList)
             }).fail(function (err) {
                 alert('gagal pake jquery')
+            })
+        }
+
+        const addTodo = () => {
+            
+            let addTodoParams = {
+                title: $('#add-todo-title').val(),
+                executor: executorId
+            }
+            $.ajax({
+                method: "POST",
+                url: "http://localhost:3000/todos",
+                dataType: "json",
+                data: addTodoParams
+            }).done(function (response) {
+                readData()
             })
         }
 
