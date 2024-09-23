@@ -40,18 +40,25 @@ module.exports = function (db) {
 
   /* GET home page. */
   router.get('/', async function (req, res, next) {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
+    const url = req.url == '/' ? 'page=1&limit=5&title=""&complete=&startdateDeadline=""&enddateDeadline=""&sortBy="_id"&sortMode="asc"&executor=""' : req.url.slice(2);
+    const param = new URLSearchParams(url)
+    const page = parseInt(param.get("page"));
+    const limit = parseInt(param.get("limit"));
     const offset = (page - 1) * limit;
     const wheres = []
-    const filterPageArray = []
-    var filterPage = ``
-    var count = 1;
-    var sortBy = req.query.sortBy == undefined ? `_id` : req.query.sortBy;
-    var sortMode = req.query.sortMode == undefined ? `asc` : req.query.sortMode;
-    var sortMongo = `{${sortBy} : ${sortMode}}`;
+    let sortBy = param.get("sortBy")
+    let sortMode = param.get("sortMode")
+    let sortMongo = `{${sortBy} : ${sortMode}}`;
     sortMongo = JSON.parse(sortMongo);
+    let title = param.get("title")
+    let complete = param.get("complete")
+    let enddateDeadline = param.get("enddateDeadline")
+    let startdateDeadline = param.get("startdateDeadline")
+    let executor = param.get("executor")
+
     // const filterPage = `&name=${req.query.name}&height=${req.query.height}&weight=${req.query.weight}&startDate=${req.query.startDate}&endDate=${req.query.endDate}&married=${req.query.married}&operation=${req.query.operation}`
+    
+    
     const filter = {
       title: req.query.title,
       complete: req.query.complete,
@@ -60,35 +67,30 @@ module.exports = function (db) {
       executor: req.query.executor
     }
 
-    if (req.query.title != '""') {
+    if (title != '""') {
       wheres.push(`"title" : ${req.query.title}`);
-      filterPageArray.push(`&title=${req.query.title}`)
     }
 
-    if (req.query.complete) {
+    if (complete) {
       wheres.push(`"complete" : ${req.query.complete}`);
-      filterPageArray.push(`&complete=${req.query.complete}`)
     }
 
-    if (req.query.startdateDeadline || req.query.enddateDeadline) {
-      if (req.query.startdateDeadline != '""' && req.query.enddateDeadline != '""') {
-        let endDate = new Date(req.query.enddateDeadline)
+    if (startdateDeadline != '""' || enddateDeadline != '""') {
+      if (startdateDeadline != '""' && enddateDeadline != '""') {
+        let endDate = new Date(enddateDeadline)
         endDate.setDate(endDate.getDate() + 1)
         let year = endDate.getFullYear();
         let month = String(endDate.getMonth() + 1).padStart(2, '0');
         let day = String(endDate.getDate()).padStart(2, '0');
         let formattedEndDate = `${year}-${month}-${day}`
-        wheres.push(`"date" :{ "$gt": ${req.query.startdateDeadline}, "$lte": ${formattedEndDate}}`)
-        filterPageArray.push(`&startDate=${req.query.startdateDeadline}`)
-        filterPageArray.push(`&endDate=${formattedEndDate}`)
+        wheres.push(`"date" :{ "$gt": ${startdateDeadline}, "$lte": ${formattedEndDate}}`)
       }
-      else if (req.query.startdateDeadline != '""') {
-        wheres.push(`"date": {"$gt": ${req.query.startdateDeadline}}`)
-        filterPageArray.push(`&startdateDeadline=${req.query.startdateDeadline}`)
+      else if (startdateDeadline != '""') {
+        wheres.push(`"date": {"$gt": ${startdateDeadline}}`)
       }
-      else if (req.query.enddateDeadline != '""') {
+      else if (enddateDeadline != '""') {
 
-        let endDate = new Date(req.query.enddateDeadline)
+        let endDate = new Date(enddateDeadline)
         endDate.setDate(endDate.getDate() + 1)
         let year = endDate.getFullYear();
         let month = String(endDate.getMonth() + 1).padStart(2, '0');
@@ -96,8 +98,11 @@ module.exports = function (db) {
         let formattedEndDate = `${year}-${month}-${day}`
 
         wheres.push(`"date": {"$lte": ${formattedEndDate}}`)
-        filterPageArray.push(`&enddateDeadline=${formattedEndDate}`)
       }
+    }
+
+    if (executor != '""'){
+      wheres.push(`"executor": "${executor}"`)
     }
 
     let noSql = '{';

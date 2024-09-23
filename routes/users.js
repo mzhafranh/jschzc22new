@@ -13,7 +13,7 @@ module.exports = function (db) {
   }
 
   router.get('/', async function (req, res, next) {
-    const url = req.url == '/' ? 'page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"' : req.url.slice(2);
+    const url = req.url == '/' ? 'page=1&limit=5&query=""&sortBy="_id"&sortMode="asc"' : req.url.slice(2);
     const param = new URLSearchParams(url)
     const page = parseInt(param.get("page"));
     const limit = parseInt(param.get("limit"));
