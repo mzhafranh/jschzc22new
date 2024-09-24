@@ -32,61 +32,59 @@
             <div class="card-header">
                 <h2 class="text-center">Todo List</h2>
             </div>
-            <div class="card-body" style="padding-left: 0; padding-right: 0; padding-bottom: 0;">
-                <form action="" id="searchForm" method="get" style="padding: 16px 16px 0px 16px;">
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <label for="name" class="col-form-label">Title</label>
-                        </div>
-                        <div class="col-10">
-                            <input type="text" name="search-title" id="search-title" class="form-control"
-                                placeholder="insert your title">
-                        </div>
+            <div class="card-body" style="padding-left: 12px; padding-right: 12px; padding-bottom: 0;">
+                <div class="row mb-2">
+                    <div class="col-2">
+                        <label for="name" class="col-form-label">Title</label>
                     </div>
+                    <div class="col-10">
+                        <input type="text" name="search-title" id="search-title" class="form-control"
+                            placeholder="insert your title">
+                    </div>
+                </div>
 
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <label for="deadline">Deadline</label>
-                        </div>
-                        <div class="col-4">
-                            <input type="date" class="form-control" name="search-startdateDeadline"
-                                id="search-startdateDeadline">
-                        </div>
-                        <div class="col-2">
-                            <p class="text-center"> s.d. </p>
-                        </div>
-                        <div class="col-4">
-                            <input type="date" class="form-control" name="search-enddateDeadline"
-                                id="search-enddateDeadline">
-                        </div>
+                <div class="row mb-2">
+                    <div class="col-2">
+                        <label for="deadline">Deadline</label>
                     </div>
+                    <div class="col-4">
+                        <input type="date" class="form-control" name="search-startdateDeadline"
+                            id="search-startdateDeadline">
+                    </div>
+                    <div class="col-2">
+                        <p class="text-center"> s.d. </p>
+                    </div>
+                    <div class="col-4">
+                        <input type="date" class="form-control" name="search-enddateDeadline"
+                            id="search-enddateDeadline">
+                    </div>
+                </div>
 
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <label for="search-complete">Complete</label>
-                        </div>
-                        <div class="col-10">
-                            <select id="search-complete" name="search-complete" class="form-control">
-                                <option value="">--select complete--</option>
-                                <option value=0>Not Yet
-                                </option>
-                                <option value=1>Yes
-                                </option>
-                            </select>
-                        </div>
+                <div class="row mb-2">
+                    <div class="col-2">
+                        <label for="search-complete">Complete</label>
                     </div>
-                    <div class="row ml-0 mb-3">
-                        <div class="col-2">
-                            <button class="btn btn-success"><i class="fa-solid fa-sort"></i> sort by deadline</button>
-                        </div>
-                        <div class="col-10">
-                            <button class="btn btn-warning btn-sm"><i class="fa-solid fa-arrows-rotate"></i></button>
-                            <button type="submit" class="btn btn-info btn-sm"><i
-                                    class="fa-solid fa-magnifying-glass"></i></button>
-                        </div>
+                    <div class="col-10">
+                        <select id="search-complete" name="search-complete" class="form-control">
+                            <option value="">--select complete--</option>
+                            <option value=0>Not Yet</option>
+                            <option value=1>Yes
+                            </option>
+                        </select>
                     </div>
+                </div>
+                <div class="row ml-0 mb-3">
+                    <div class="col-2">
+                        <button class="btn btn-success"><i class="fa-solid fa-sort"></i> sort by deadline</button>
+                    </div>
+                    <div class="col-10">
+                        <button class="btn btn-warning btn-sm" onclick="reset()"><i
+                                class="fa-solid fa-arrows-rotate"></i></button>
+                        <button class="btn btn-info btn-sm" onclick="search()"><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
             </div>
-            </form>
             <div class="card-header" style="border-bottom: none;">
                 <div class="row ml-0">
                     <div class="col">
@@ -160,7 +158,7 @@
 
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
 
-    <script>
+    <!-- <script>
         function search() {
             const searchForm = document.getElementById('search-form');
             const query = document.getElementById('search-input');
@@ -171,7 +169,7 @@
         function reset() {
             readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
         }
-    </script>
+    </script> -->
 
     <script>
         const currentURL = window.location.href
@@ -187,7 +185,6 @@
             sortMode: '"asc"',
             executor: executorId
         }
-        // var idObj = $('#idObj').val()
 
         const readData = () => {
             $.ajax({
@@ -265,6 +262,30 @@
             })
         }
 
+        const search = () => {
+            params.title = `"${$('#search-title').val()}"`
+            params.startdateDeadline = `"${$('#search-startdateDeadline').val()}"`
+            params.enddateDeadline = `"${$('#search-enddateDeadline').val()}"`
+            if ($('#search-complete').val()) {
+                params.complete = `${$('#search-complete').val() == 1 ? true : false}`
+            } else {
+                params.complete = `${$('#search-complete').val()}`
+            }
+            readData()
+        }
+
+        const reset = () => {
+            $('#search-title').val('')
+            params.title = `""`
+            $('#search-startdateDeadline').val('')
+            params.startdateDeadline = `""`
+            $('#search-enddateDeadline').val('')
+            params.enddateDeadline = `""`
+            $('#search-complete').val('')
+            params.complete = ''
+            readData()
+        }
+
         const addTodo = () => {
             let addTodoParams = {
                 title: $('#add-todo-title').val(),
@@ -326,7 +347,7 @@
             jsonData += `${formArray.join(',')}`
             jsonData += '}'
             jsonData = JSON.parse(jsonData)
-            
+
             $.ajax({
                 method: "PUT",
                 url: `http://localhost:3000/todos/${id}`,

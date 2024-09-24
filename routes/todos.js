@@ -67,42 +67,28 @@ module.exports = function (db) {
       executor: req.query.executor
     }
 
-    if (title != '""') {
-      wheres.push(`"title" : ${req.query.title}`);
+    if (complete) {
+      wheres.push(`"complete" : ${complete}`);
     }
 
-    if (complete) {
-      wheres.push(`"complete" : ${req.query.complete}`);
+    if (executor != '""'){
+      wheres.push(`"executor": "${executor}"`)
     }
 
     if (startdateDeadline != '""' || enddateDeadline != '""') {
       if (startdateDeadline != '""' && enddateDeadline != '""') {
         let endDate = new Date(enddateDeadline)
         endDate.setDate(endDate.getDate() + 1)
-        let year = endDate.getFullYear();
-        let month = String(endDate.getMonth() + 1).padStart(2, '0');
-        let day = String(endDate.getDate()).padStart(2, '0');
-        let formattedEndDate = `${year}-${month}-${day}`
-        wheres.push(`"date" :{ "$gt": ${startdateDeadline}, "$lte": ${formattedEndDate}}`)
+        wheres.push(`"deadline" :{ "$gt": ${startdateDeadline}, "$lte": "${endDate.toISOString()}"}`)
       }
       else if (startdateDeadline != '""') {
-        wheres.push(`"date": {"$gt": ${startdateDeadline}}`)
+        wheres.push(`"deadline": {"$gt": ${startdateDeadline}}`)
       }
       else if (enddateDeadline != '""') {
-
         let endDate = new Date(enddateDeadline)
         endDate.setDate(endDate.getDate() + 1)
-        let year = endDate.getFullYear();
-        let month = String(endDate.getMonth() + 1).padStart(2, '0');
-        let day = String(endDate.getDate()).padStart(2, '0');
-        let formattedEndDate = `${year}-${month}-${day}`
-
-        wheres.push(`"date": {"$lte": ${formattedEndDate}}`)
+        wheres.push(`"deadline": {"$lte": "${endDate.toISOString()}"}`)
       }
-    }
-
-    if (executor != '""'){
-      wheres.push(`"executor": "${executor}"`)
     }
 
     let noSql = '{';
@@ -111,11 +97,14 @@ module.exports = function (db) {
     }
     noSql += '}'
 
-    console.log(noSql)
-    // console.log(values)
-    // console.log(wheres)
-
     noSql = JSON.parse(noSql)
+
+    if (title != '""'){
+      let titleJSON = { title: { $regex: title.replace(/"/g, ''), $options: 'i' } }
+      noSql = {...noSql, ...titleJSON}
+    }
+
+    console.log(noSql)
 
     try {
       const totalData = await db.collection("todos").countDocuments(noSql)
