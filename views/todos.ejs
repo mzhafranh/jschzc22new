@@ -75,7 +75,8 @@
                 </div>
                 <div class="row ml-0 mb-3">
                     <div class="col-2">
-                        <button class="btn btn-success"><i class="fa-solid fa-sort"></i> sort by deadline</button>
+                        <button class="btn btn-success" id="sort-deadline" onclick="sortByDeadline()"><i class="fa-solid fa-sort"></i> sort by
+                            deadline</button>
                     </div>
                     <div class="col-10">
                         <button class="btn btn-warning btn-sm" onclick="reset()"><i
@@ -182,6 +183,7 @@
             startdateDeadline: '""',
             enddateDeadline: '""',
             sortBy: '"_id"',
+            // sortBy: '"deadline"',
             sortMode: '"asc"',
             executor: executorId
         }
@@ -194,6 +196,18 @@
                 data: params
             }).done(function (response) {
                 params = { ...params, totalPages: response.totalPages }
+                let sortDeadlineButton = ''
+
+                if (params.sortBy == '"deadline"' && params.sortMode == '"asc"') {
+                    sortDeadlineButton += '<i class="fa-solid fa-sort-up"></i> sort by deadline'
+                } else if (params.sortBy == '"deadline"' && params.sortMode == '"desc"') {
+                    sortDeadlineButton += '<i class="fa-solid fa-sort-down"></i> sort by deadline'
+                } else {
+                    sortDeadlineButton += '<i class="fa-solid fa-sort"></i> sort by deadline'
+                }
+
+                $('#sort-deadline').html(sortDeadlineButton)
+
                 let todosList = ''
 
                 response.data.forEach((item, index) => {
@@ -271,6 +285,8 @@
             } else {
                 params.complete = `${$('#search-complete').val()}`
             }
+            params.sortBy = '"_id"'
+            params.sortMode = '"asc"'
             readData()
         }
 
@@ -283,6 +299,22 @@
             params.enddateDeadline = `""`
             $('#search-complete').val('')
             params.complete = ''
+            params.sortBy = '"_id"'
+            params.sortMode = '"asc"'
+            readData()
+        }
+
+        const sortByDeadline = () => {
+            if (params.sortBy == '"_id"') {
+                params.sortBy = '"deadline"'
+                params.sortMode = '"asc"'
+            } else if (params.sortBy == '"deadline"' && params.sortMode == '"asc"'){
+                params.sortBy = '"deadline"'
+                params.sortMode = '"desc"'
+            } else {
+                params.sortBy = '"deadline"'
+                params.sortMode = '"asc"'
+            }
             readData()
         }
 
@@ -297,6 +329,7 @@
                 dataType: "json",
                 data: addTodoParams
             }).done(function (response) {
+                $('#add-todo-title').val('');
                 readData()
             })
         }
