@@ -5,7 +5,25 @@
     <title>BREAD (Browse, Read, Edit, Add, Delete)</title>
     <link href="/stylesheets/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Dark overlay for background when modal is open */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent black */
+            z-index: 1050;
+            display: none;
+        }
 
+        /* Modal should be above the dark overlay */
+        #formModal {
+            z-index: 1060;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +39,8 @@
                             <label for="name" class="col-form-label">Title</label>
                         </div>
                         <div class="col-10">
-                            <input type="text" name="title" class="form-control" placeholder="insert your title">
+                            <input type="text" name="search-title" id="search-title" class="form-control"
+                                placeholder="insert your title">
                         </div>
                     </div>
 
@@ -30,22 +49,24 @@
                             <label for="deadline">Deadline</label>
                         </div>
                         <div class="col-4">
-                            <input type="date" class="form-control" name="startDate">
+                            <input type="date" class="form-control" name="search-startdateDeadline"
+                                id="search-startdateDeadline">
                         </div>
                         <div class="col-2">
                             <p class="text-center"> s.d. </p>
                         </div>
                         <div class="col-4">
-                            <input type="date" class="form-control" name="endDate">
+                            <input type="date" class="form-control" name="search-enddateDeadline"
+                                id="search-enddateDeadline">
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-2">
-                            <label for="complete">Complete</label>
+                            <label for="search-complete">Complete</label>
                         </div>
                         <div class="col-10">
-                            <select id="complete" name="complete" class="form-control">
+                            <select id="search-complete" name="search-complete" class="form-control">
                                 <option value="">--select complete--</option>
                                 <option value=0>Not Yet
                                 </option>
@@ -59,8 +80,7 @@
                             <button class="btn btn-success"><i class="fa-solid fa-sort"></i> sort by deadline</button>
                         </div>
                         <div class="col-10">
-                            <a href="/todos" class="btn btn-warning btn-sm"><i
-                                    class="fa-solid fa-arrows-rotate"></i></a>
+                            <button class="btn btn-warning btn-sm"><i class="fa-solid fa-arrows-rotate"></i></button>
                             <button type="submit" class="btn btn-info btn-sm"><i
                                     class="fa-solid fa-magnifying-glass"></i></button>
                         </div>
@@ -70,10 +90,12 @@
             <div class="card-header" style="border-bottom: none;">
                 <div class="row ml-0">
                     <div class="col">
-                        <input type="text" name="add-todo-title" id="add-todo-title" class="form-control" placeholder="title">
+                        <input type="text" name="add-todo-title" id="add-todo-title" class="form-control"
+                            placeholder="title">
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-outline-primary" onclick="addTodo()"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="btn btn-outline-primary" onclick="addTodo()"><i
+                                class="fa-solid fa-arrow-down"></i></button>
                     </div>
                 </div>
             </div>
@@ -84,36 +106,53 @@
 
         </div>
         <div class="card-footer">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="col">
-                    <nav aria-label="Page navigation" class="d-flex justify-content-end">
-                        <ul class="pagination mb-0">
-                        </ul>
-                    </nav>
-                </div>
-            </div>
         </div>
     </div>
     </div>
     <br>
 
-    <!-- Confirmation Modal -->
-    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
-        aria-hidden="true">
+    <!-- Dark overlay -->
+    <div id="overlay"></div>
+
+    <!-- Modal Structure -->
+    <div id="formTodoModal" class="modal" tabindex="-1" style="display: none;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmationModalLabel">Delete Confirmation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="modal-title">Update Todo</h5>
+                    <button type="button" class="btn-close" id="closeUserModal"></button>
                 </div>
                 <div class="modal-body">
-                    <p id="modal-paragraph">Apakah kamu yakin akang menghapus data NAMA?</p>
+                    <form id="todoForm">
+                        <div class="row mb-3">
+                            <label for="Title" class="col-form-label col-md-2">Title</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="deadline" class="col-form-label col-md-2">Deadline</label>
+                            <div class="col-md-10">
+                                <input type="datetime-local" class="form-control" id="deadline" name="deadline"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="complete" class="col-form-label col-md-2">Complete</label>
+                            <div class="col-md-10">
+                                <input type="checkbox" class="form-check-input" name="complete" class="form-control"
+                                    id="complete" value="true">
+                                <label class="form-check-label" for="complete">done</label>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="deleteConfirmation" style="display:none;">
+                        <p class="mb-0">Are you sure?</p>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
-                        style="width: 90px;">No</button>
-                    <button type="button" class="btn btn-warning btn-sm" id="confirmButton"
-                        style="width: 90px;">Yes</button>
+                    <button class="btn btn-secondary" id="closeOptionTodoModal">Close</button>
+                    <button class="btn btn-primary" id="submitUser">Save changes</button>
                 </div>
             </div>
         </div>
@@ -122,28 +161,16 @@
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
 
     <script>
-        // Function to show the modal
-        function showConfirmationModal(name, id) {
-            // Show the modal
-            var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'), {
-                backdrop: 'static', // Prevent closing the modal by clicking outside
-                keyboard: false     // Prevent closing the modal by pressing Esc
-            });
-
-            const paragraph = document.getElementById('modal-paragraph');
-            paragraph.textContent = `Apakah kamu yakin akang menghapus data ${name}?`
-
-            // Show the modal
-            confirmationModal.show();
-
-
-            // Set up the confirm button click event
-            document.getElementById('confirmButton').addEventListener('click', function () {
-                window.location.href = `/todos/delete/${id}`// Call the callback function on confirmation
-                confirmationModal.hide(); // Hide the modal
-            });
+        function search() {
+            const searchForm = document.getElementById('search-form');
+            const query = document.getElementById('search-input');
+            const selectElement = document.getElementById('limit-input');
+            readData(`page=1&limit=${selectElement.value}&query="${query.value}"&sortBy="_id"&sortMode="desc"`)
         }
 
+        function reset() {
+            readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
+        }
     </script>
 
     <script>
@@ -182,6 +209,7 @@
                     const hours = String(date.getHours()).padStart(2, '0');
                     const minutes = String(date.getMinutes()).padStart(2, '0');
                     const formattedDate = `${day}-${month}-${year} ${hours}:${minutes}`;
+                    const formatDateEdit = `${year}-${month}-${day}T${hours}:${minutes}`;
                     const passedDeadline = date < now && !item.complete;
 
                     if (passedDeadline) {
@@ -193,8 +221,8 @@
                                     <span>${formattedDate} ${item.title}</span>
                                 </div>
                                 <div class="col-1">
-                                    <button class="btn btn-sm" onclick="openEditModal()"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="btn btn-sm" onclick="openDeleteModal()"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="btn btn-sm" onclick="openEditModal('${item._id}', '${item.title}', '${formatDateEdit}', '${item.complete}')"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-sm" onclick="openDeleteModal('${item._id}')"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -208,8 +236,8 @@
                                     <span>${formattedDate} ${item.title}</span>
                                 </div>
                                 <div class="col-1">
-                                    <button class="btn btn-sm" onclick="openEditModal()"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="btn btn-sm" onclick="openDeleteModal()"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="btn btn-sm" onclick="openEditModal('${item._id}', '${item.title}', '${formatDateEdit}', '${item.complete}')"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-sm" onclick="openDeleteModal('${item._id}')"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -223,8 +251,8 @@
                                     <span>${formattedDate} ${item.title}</span>
                                 </div>
                                 <div class="col-1">
-                                    <button class="btn btn-sm" onclick="openEditModal()"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="btn btn-sm" onclick="openDeleteModal()"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="btn btn-sm" onclick="openEditModal('${item._id}', '${item.title}', '${formatDateEdit}', '${item.complete}')"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-sm" onclick="openDeleteModal('${item._id}')"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -238,7 +266,6 @@
         }
 
         const addTodo = () => {
-            
             let addTodoParams = {
                 title: $('#add-todo-title').val(),
                 executor: executorId
@@ -253,12 +280,85 @@
             })
         }
 
-        const openEditModal = () => {
-            console.log("open edit modal")
+        const openEditModal = (id, title, deadline, complete) => {
+            $('#formTodoModal').css('display', 'block');
+            $('#todoForm').css('display', 'block');
+            $('#deleteConfirmation').css('display', 'none');
+            $('#overlay').css('display', 'block');
+
+            $('#closeOptionTodoModal').text("Close");
+            $('#submitUser').text("Save changes");
+
+            $('#title').val(title);
+            $('#deadline').val(deadline);
+
+            if (complete == "true") {
+                $('#complete').prop('checked', true);
+            } else {
+                $('#complete').prop('checked', false);
+            }
+
+            $('#submitUser').off('click').on('click', function () {
+                editTodo(id);
+            });
         }
 
-        const openDeleteModal = () => {
-            console.log("open delete modal")
+        const closeModal = () => {
+            $('#formTodoModal').css('display', 'none');
+            $('#overlay').css('display', 'none');
+        }
+
+        $('#closeUserModal').on('click', function () {
+            closeModal();
+        });
+
+        $('#closeOptionUserModal').on('click', function () {
+            closeModal();
+        });
+
+        const editTodo = (id) => {
+            let formArray = []
+            formArray.push(`"title" : "${$('#title').val()}"`)
+            formArray.push(`"deadline" : "${$('#deadline').val()}"`)
+            formArray.push(`"complete" : ${$('#complete').prop('checked')}`)
+            console.log(formArray)
+            let jsonData = '{'
+            jsonData += `${formArray.join(',')}`
+            jsonData += '}'
+            jsonData = JSON.parse(jsonData)
+            
+            $.ajax({
+                method: "PUT",
+                url: `http://localhost:3000/todos/${id}`,
+                dataType: "json",
+                data: jsonData
+            }).done(function (response) {
+                closeModal()
+                readData()
+            })
+        }
+
+        const openDeleteModal = (id) => {
+            $('#formTodoModal').css('display', 'block');
+            $('#todoForm').css('display', 'none');
+            $('#deleteConfirmation').css('display', 'block');
+            $('#overlay').css('display', 'block');
+
+            $('#closeOptionTodoModal').text("No");
+            $('#submitUser').text("Yes");
+            $('#submitUser').off('click').on('click', function () {
+                deleteTodo(id);
+            });
+        }
+
+        const deleteTodo = (id) => {
+            $.ajax({
+                method: "DELETE",
+                url: `http://localhost:3000/todos/${id}`,
+            }).done(function (response) {
+                closeModal()
+                readData()
+            })
         }
 
         $(document).ready(function () {
