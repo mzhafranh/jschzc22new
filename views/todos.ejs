@@ -23,6 +23,17 @@
         #formModal {
             z-index: 1060;
         }
+
+        #itemContainer {
+            height: 400px;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            /* Enable vertical scrolling */
+            scrollbar-width: none;
+            /* Hide scrollbar for Firefox */
+            -ms-overflow-style: none;
+            /* Hide scrollbar for Internet Explorer/Edge */
+        }
     </style>
 </head>
 
@@ -75,7 +86,8 @@
                 </div>
                 <div class="row ml-0 mb-3">
                     <div class="col-2">
-                        <button class="btn btn-success" id="sort-deadline" onclick="sortByDeadline()"><i class="fa-solid fa-sort"></i> sort by
+                        <button class="btn btn-success" id="sort-deadline" onclick="sortByDeadline()"><i
+                                class="fa-solid fa-sort"></i> sort by
                             deadline</button>
                     </div>
                     <div class="col-10">
@@ -99,9 +111,11 @@
                 </div>
             </div>
 
-            <div id="todos-list">
+            <div id="itemContainer">
 
             </div>
+            <div id="loadingMessage" style="display: none;">Loading more items...</div>
+
 
         </div>
         <div class="card-footer">
@@ -183,9 +197,9 @@
             startdateDeadline: '""',
             enddateDeadline: '""',
             sortBy: '"_id"',
-            // sortBy: '"deadline"',
             sortMode: '"asc"',
-            executor: executorId
+            executor: executorId,
+            totalPages: 0
         }
 
         const readData = () => {
@@ -195,7 +209,7 @@
                 dataType: "json",
                 data: params
             }).done(function (response) {
-                params = { ...params, totalPages: response.totalPages }
+                params.totalPages = response.totalPages
                 let sortDeadlineButton = ''
 
                 if (params.sortBy == '"deadline"' && params.sortMode == '"asc"') {
@@ -207,8 +221,7 @@
                 }
 
                 $('#sort-deadline').html(sortDeadlineButton)
-
-                let todosList = ''
+                // let todosList = ''
 
                 response.data.forEach((item, index) => {
 
@@ -224,7 +237,7 @@
                     const passedDeadline = date < now && !item.complete;
 
                     if (passedDeadline) {
-                        todosList += `
+                        $('#itemContainer').append(`
                         <div class="card mt-3 d-flex justify-content-center bg-danger-subtle text-danger-emphasis"
                             style="height: 50px; padding: 0 8px 0 16px;">
                             <div class="row">
@@ -237,9 +250,9 @@
                                 </div>
                             </div>
                         </div>
-                    `
+                    `)
                     } else if (item.complete) {
-                        todosList += `
+                        $('#itemContainer').append(`
                         <div class="card mt-3 d-flex justify-content-center bg-success-subtle text-success-emphasis"
                             style="height: 50px; padding: 0 8px 0 16px;">
                             <div class="row">
@@ -252,9 +265,9 @@
                                 </div>
                             </div>
                         </div>
-                    `
+                    `)
                     } else {
-                        todosList += `
+                        $('#itemContainer').append(`
                         <div class="card mt-3 d-flex justify-content-center bg-body-secondary text-secondary-emphasis"
                             style="height: 50px; padding: 0 8px 0 16px;">
                             <div class="row">
@@ -267,10 +280,9 @@
                                 </div>
                             </div>
                         </div>
-                    `
+                    `)
                     }
                 });
-                $('#todos-list').html(todosList)
             }).fail(function (err) {
                 alert('gagal pake jquery')
             })
@@ -287,7 +299,7 @@
             }
             params.sortBy = '"_id"'
             params.sortMode = '"asc"'
-            readData()
+            refreshItems()
         }
 
         const reset = () => {
@@ -301,37 +313,39 @@
             params.complete = ''
             params.sortBy = '"_id"'
             params.sortMode = '"asc"'
-            readData()
+            refreshItems()
         }
 
         const sortByDeadline = () => {
             if (params.sortBy == '"_id"') {
                 params.sortBy = '"deadline"'
                 params.sortMode = '"asc"'
-            } else if (params.sortBy == '"deadline"' && params.sortMode == '"asc"'){
+            } else if (params.sortBy == '"deadline"' && params.sortMode == '"asc"') {
                 params.sortBy = '"deadline"'
                 params.sortMode = '"desc"'
             } else {
                 params.sortBy = '"deadline"'
                 params.sortMode = '"asc"'
             }
-            readData()
+            refreshItems()
         }
 
         const addTodo = () => {
-            let addTodoParams = {
-                title: $('#add-todo-title').val(),
-                executor: executorId
+            if ($('#add-todo-title').val() != "") {
+                let addTodoParams = {
+                    title: $('#add-todo-title').val(),
+                    executor: executorId
+                }
+                $.ajax({
+                    method: "POST",
+                    url: "http://localhost:3000/todos",
+                    dataType: "json",
+                    data: addTodoParams
+                }).done(function (response) {
+                    $('#add-todo-title').val('');
+                    refreshItems()
+                })
             }
-            $.ajax({
-                method: "POST",
-                url: "http://localhost:3000/todos",
-                dataType: "json",
-                data: addTodoParams
-            }).done(function (response) {
-                $('#add-todo-title').val('');
-                readData()
-            })
         }
 
         const openEditModal = (id, title, deadline, complete) => {
@@ -366,7 +380,7 @@
             closeModal();
         });
 
-        $('#closeOptionUserModal').on('click', function () {
+        $('#closeOptionTodoModal').on('click', function () {
             closeModal();
         });
 
@@ -388,7 +402,7 @@
                 data: jsonData
             }).done(function (response) {
                 closeModal()
-                readData()
+                refreshItems()
             })
         }
 
@@ -411,9 +425,48 @@
                 url: `http://localhost:3000/todos/${id}`,
             }).done(function (response) {
                 closeModal()
-                readData()
+                refreshItems()
             })
         }
+
+        let currentPage = 1;
+        let isLoading = false;
+        let hasMoreItems = true;
+
+        // Function to load more items
+        function loadMoreItems(page) {
+            isLoading = true;
+            $('#loadingMessage').show();
+
+            params.page = page;
+
+            readData()
+
+            // Simulate the end of the list (stop loading after 5 pages)
+            if (page >= params.totalPages) {
+                hasMoreItems = false;
+                $('#loadingMessage').text('No more items to load');
+            }
+
+            $('#loadingMessage').hide();
+            isLoading = false;
+        }
+
+        function refreshItems() {
+            currentPage = 1;
+            hasMoreItems = true;
+            $('#itemContainer').empty();  // Clear the current items
+            loadMoreItems(currentPage);  // Reload items
+        }
+
+        // Handle scroll event
+        $('#itemContainer').on('scroll', function () {
+            // Check if scrolled to the bottom and not currently loading
+            if (!isLoading && hasMoreItems && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+                currentPage++;
+                loadMoreItems(currentPage);
+            }
+        });
 
         $(document).ready(function () {
             readData()
