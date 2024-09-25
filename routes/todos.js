@@ -170,9 +170,10 @@ module.exports = function (db) {
   router.put('/:id', async function (req, res, next) {
     const id = req.params.id
     const { title, deadline, complete } = req.body
+    let date = new Date(deadline)
     var myObj = []
     myObj.push(`"title" : "${title}"`)
-    myObj.push(`"deadline" : "${deadline}"`)
+    myObj.push(`"deadline" : "${date.toISOString()}"`)
     myObj.push(`"complete" : ${complete}`)
     let noSql = '{';
     if (myObj.length > 0) {
