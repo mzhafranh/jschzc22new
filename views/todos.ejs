@@ -173,19 +173,6 @@
 
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
 
-    <!-- <script>
-        function search() {
-            const searchForm = document.getElementById('search-form');
-            const query = document.getElementById('search-input');
-            const selectElement = document.getElementById('limit-input');
-            readData(`page=1&limit=${selectElement.value}&query="${query.value}"&sortBy="_id"&sortMode="desc"`)
-        }
-
-        function reset() {
-            readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
-        }
-    </script> -->
-
     <script>
         const currentURL = window.location.href
         const executorId = currentURL.split("/")[4]
@@ -209,7 +196,7 @@
                 dataType: "json",
                 data: params
             }).done(function (response) {
-                params.totalPages = response.totalPages
+                params.totalPages = response.pages
                 let sortDeadlineButton = ''
 
                 if (params.sortBy == '"deadline"' && params.sortMode == '"asc"') {
@@ -389,7 +376,6 @@
             formArray.push(`"title" : "${$('#title').val()}"`)
             formArray.push(`"deadline" : "${$('#deadline').val()}"`)
             formArray.push(`"complete" : ${$('#complete').prop('checked')}`)
-            console.log(formArray)
             let jsonData = '{'
             jsonData += `${formArray.join(',')}`
             jsonData += '}'
@@ -436,7 +422,7 @@
         // Function to load more items
         function loadMoreItems(page) {
             isLoading = true;
-            $('#loadingMessage').show();
+            // $('#loadingMessage').css('display', 'none');
 
             params.page = page;
 
@@ -445,10 +431,10 @@
             // Simulate the end of the list (stop loading after 5 pages)
             if (page >= params.totalPages) {
                 hasMoreItems = false;
-                $('#loadingMessage').text('No more items to load');
+                // $('#loadingMessage').text('No more items to load');
+                // $('#loadingMessage').css('display', 'block');
             }
 
-            $('#loadingMessage').hide();
             isLoading = false;
         }
 
