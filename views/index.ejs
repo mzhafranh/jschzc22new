@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="col">
-                            <input type="text" class="form-control" id="search-input" placeholder="search">
+                        <input type="text" class="form-control" id="search-input" placeholder="search">
                     </div>
                     <div class="col-auto">
                         <button class="btn btn-outline-secondary" id="search-button" onclick="search()"><i
@@ -142,6 +142,8 @@
         }
 
         function reset() {
+            const selectElement = document.getElementById('limit-input');
+            document.getElementById('limit-input').value = 5
             readData(`page=1&limit=5&query=""&sortBy="_id"&sortMode="desc"`)
         }
     </script>
@@ -311,25 +313,16 @@
                     document.querySelector('table tbody').innerHTML = htmlTbody
 
                     let pageParam = new URLSearchParams(link)
+                    let modifiedPageParam = new URLSearchParams(link)
                     let prevPageLink = ''
                     let nextPageLink = ''
                     let pageLink = ''
 
-                    if (pageParam.get('page') == 1) {
-                        prevPageLink = pageParam.toString()
-                        pageParam.set('page', parseInt(pageParam.get('page')) + 1)
-                        nextPageLink = pageParam.toString()
-                    } else if (pageParam.get('page') == pageParam.get('pages')) {
-                        nextPageLink = pageParam.toString()
-                        pageParam.set('page', pageParam.get('page') - 1)
-                        prevPageLink = pageParam.toString()
-                    } else {
-                        pageParam.set('page', pageParam.get('page') - 1)
-                        prevPageLink = pageParam.toString()
+                    modifiedPageParam.set('page', modifiedPageParam.get('page') - 1)
+                    prevPageLink = modifiedPageParam.toString()
 
-                        pageParam.set('page', parseInt(pageParam.get('page')) + 2)
-                        nextPageLink = pageParam.toString()
-                    }
+                    modifiedPageParam.set('page', parseInt(modifiedPageParam.get('page')) + 2)
+                    nextPageLink = modifiedPageParam.toString()
 
                     let showEntryText = ''
                     if (response.total == 0) {
@@ -343,11 +336,14 @@
 
                     let paging = '';
 
-                    paging += `<button type="button" class="page-link" onClick='readData("${prevPageLink}")'><span aria-hidden="true">&laquo;</span></button>`
+                    console.log()
+                    if (!(pageParam.get('page') == 1)) {
+                        paging += `<button type="button" class="page-link" onClick='readData("${prevPageLink}")'><span aria-hidden="true">&laquo;</span></button>`
+                    }
 
                     for (let i = 1; i <= response.pages; i++) {
-                        pageParam.set('page', i)
-                        pageLink = pageParam.toString()
+                        modifiedPageParam.set('page', i)
+                        pageLink = modifiedPageParam.toString()
 
                         if (link.includes(`page=${i}`)) {
                             paging += `<li class="page-item"><button type="button" class="page-link active" onClick='readData("${pageLink}")'>${i}</button></li>`
@@ -356,7 +352,10 @@
                             paging += `<li class="page-item"><button type="button" class="page-link" onClick='readData("${pageLink}")'>${i}</button></li>`
                         }
                     }
-                    paging += `<button type="button" class="page-link" onClick='readData("${nextPageLink}")'><span aria-hidden="true">&raquo;</span></button>`
+                    
+                    if (!(pageParam.get('page') == response.pages)) {
+                        paging += `<button type="button" class="page-link" onClick='readData("${nextPageLink}")'><span aria-hidden="true">&raquo;</span></button>`
+                    }
 
                     document.querySelector('ul').innerHTML = paging
                 })
